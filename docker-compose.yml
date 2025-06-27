@@ -14,8 +14,8 @@ services:
     volumes:
       - .:/app
     networks:
-      - speak_io_net
+      - hotword_net
 
 networks:
-  speak_io_net:
+  hotword_net:
     driver: bridge

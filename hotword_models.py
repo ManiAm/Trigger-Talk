@@ -72,12 +72,14 @@ class HotwordModel():
 
         dev_info_default = utility.get_default_input_device()
 
-        print(
-            f"\nDefault input device: "
-            f"[{dev_info_default['index']}] "
-            f"{dev_info_default['name']} "
-            f"(hostapi: {dev_info_default['hostapi_name']})"
-        )
+        if dev_info_default:
+
+            print(
+                f"\nDefault input device: "
+                f"[{dev_info_default['index']}] "
+                f"{dev_info_default['name']} "
+                f"(hostapi: {dev_info_default['hostapi_name']})"
+            )
 
         if not dev_index:
 
