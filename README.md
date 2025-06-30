@@ -67,7 +67,9 @@ The hotword service exposes a WebSocket-based interface that [clients](client.py
         "model_engine_stt": "openai_whisper",            # STT engine to use
         "model_name_stt": "small.en",                    # Name of the specific model to load
         "target_latency": 100,                           # Desired processing latency (in milliseconds)
-        "silence_duration": 3                            # Duration of silence (in seconds) to stop recording
+        "silence_duration": 3,                           # Duration of silence (in seconds) to stop recording
+        "hotword_audio": "bell_1.wav",                   # Optional WAV file to play when a wake word is detected
+        "silence_audio": "bell_1.wav"                    # Optional WAV file to play when silent is detected
     }
 
 Once initialized, the hotword service actively listens for any of the specified hotwords. When a hotword is detected, the service notifies the client through the WebSocket connection. It then enters a full recording mode, capturing the user's speech until silence is detected. The `silence_duration` parameter allows clients to control how long the service should detect silence before it considers the speech session complete. After recording, the audio is sent to the STT engine for transcription. Once the transcription is complete, the final transcribed text is sent back to the client.
@@ -86,3 +88,32 @@ This project also supports Picovoice [Porcupine](https://github.com/Picovoice/po
     "picovoice", "porcupine", "blueberry", "jarvis", "hey barista"
 
 In addition to these, you can train your own custom wakeword using the [Picovoice Console](https://console.picovoice.ai/), targeting specific platforms (e.g., Linux, macOS, Windows, Android, iOS, Raspberry Pi). The result is a `.ppn` model file which you can include in the project and reference by filename. Check [this](https://youtu.be/T6jxYRSyF2w) short tutorial for more details.
+
+## Accessing Microphone and Speaker in WSL
+
+If your application requires direct access to USB audio devices (e.g., microphone or speaker) inside Windows Subsystem for Linux (WSL2), you can use [usbipd-win](https://github.com/dorssel/usbipd-win) to attach USB devices from Windows to your WSL instance.
+
+Open a PowerShell (as Administrator) on Windows. List available USB devices:
+
+    usbipd list
+
+Bind the device on Windows:
+
+    usbipd bind --busid 1-2
+
+Replace `1-2` with the correct BUSID of your audio device.
+
+Attach the USB device to WSL:
+
+    usbipd attach --wsl --busid 1-2
+
+Here is a sample output:
+
+    usbipd: info: Using WSL distribution 'Ubuntu' to attach; the device will be available in all WSL 2 distributions.
+    usbipd: info: Loading vhci_hcd module.
+    usbipd: info: Detected networking mode 'nat'.
+    usbipd: info: Using IP address 172.29.192.1 to reach the host.
+
+Verify the device inside WSL:
+
+    lsusb

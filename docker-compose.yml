@@ -8,7 +8,13 @@ services:
       - "5600:5600"
     restart: on-failure:3
     devices:
-      - "/dev/snd"
+      - "/dev/snd"   # Access to ALSA devices (mic + speaker)
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
     stdin_open: true
     tty: true
     volumes:

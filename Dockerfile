@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     uuid-dev \
     liblzma-dev \
     python3-pyaudio \
+    pulseaudio \
     ccache && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -60,6 +61,7 @@ RUN $VENV_PATH/bin/pip install --upgrade pip && \
         webrtcvad \
         sounddevice \
         pydub \
+        resampy \
         vosk==0.3.45 \
         pvporcupine==3.0.5 \
         tflite-runtime==2.14.0 \

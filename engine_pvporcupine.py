@@ -25,9 +25,6 @@ class PvporcupineEngine:
         script_path = os.path.abspath(__file__)
         script_dir = os.path.dirname(script_path)
 
-        sound_dir = os.path.join(script_dir, "sounds")
-        self.hotword_sound = os.path.join(sound_dir, "bell_1.wav")
-
         custom_keyword_path_dir = os.path.join(script_dir, "pvporcupine_keywords")
 
         my_keyword_path = {
@@ -58,7 +55,7 @@ class PvporcupineEngine:
         return True, None
 
 
-    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, on_hotword_callback=None):
+    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, hotword_audio, on_hotword_callback=None):
 
         _ = target_latency_ms
 
@@ -104,7 +101,8 @@ class PvporcupineEngine:
                     if on_hotword_callback:
                         on_hotword_callback(detected_word)
 
-                    utility.play_wav(self.hotword_sound)
+                    if hotword_audio:
+                        utility.play_wav(hotword_audio)
 
                     return True, None
 

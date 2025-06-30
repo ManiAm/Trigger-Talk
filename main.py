@@ -19,7 +19,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 app = FastAPI(
     title="Hotword API",
-    description="Hotword Detection and Transcribtion API.",
+    description="Hotword Detection and Transcription API.",
     version="1.0.0",
     docs_url="/api/docs",
     redoc_url=None,
@@ -51,6 +51,8 @@ class ListenParams(BaseModel):
     model_name_stt: Optional[str]
     target_latency: Optional[int] = 100
     silence_duration: Optional[int] = 3
+    hotword_audio: Optional[str]
+    silence_audio: Optional[str]
 
 
 class MessageStatus(str, Enum):
@@ -175,7 +177,9 @@ async def websocket_listen(websocket: WebSocket):
                 on_hotword,
                 on_transcription,
                 params.target_latency,
-                params.silence_duration)
+                params.silence_duration,
+                params.hotword_audio,
+                params.silence_audio)
 
             while not future.done():
 

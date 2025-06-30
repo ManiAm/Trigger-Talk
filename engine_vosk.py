@@ -1,6 +1,5 @@
 
 import sys
-import os
 import json
 import queue
 import gc
@@ -23,11 +22,6 @@ class VoskEngine:
         self.dev_sample_rate = None
         self.dev_channels = None
 
-        script_path = os.path.abspath(__file__)
-        script_dir = os.path.dirname(script_path)
-        sound_dir = os.path.join(script_dir, "sounds")
-        self.hotword_sound = os.path.join(sound_dir, "bell_1.wav")
-
 
     def init_model(self, model_name, dev_index, dev_sample_rate, dev_channels):
 
@@ -49,7 +43,7 @@ class VoskEngine:
         return True, None
 
 
-    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, on_hotword_callback=None):
+    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, hotword_audio, on_hotword_callback=None):
 
         blocksize = utility.choose_blocksize(target_latency_ms, self.dev_sample_rate)
 
@@ -86,7 +80,9 @@ class VoskEngine:
                             if on_hotword_callback:
                                 on_hotword_callback(word)
 
-                            utility.play_wav(self.hotword_sound)
+                            if hotword_audio:
+                                utility.play_wav(hotword_audio)
+
                             return True, None
 
                 else:

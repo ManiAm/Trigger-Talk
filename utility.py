@@ -204,5 +204,15 @@ def play_wav(filename):
         return
 
     data, samplerate = sf.read(filename, dtype='float32')
+
+    # Normalize and limit volume
+    peak = np.max(np.abs(data))
+    if peak > 0:
+        data = data / peak * 0.8  # cap at 80% volume to avoid clipping
+
+    # Upmix mono to stereo
+    if data.ndim == 1:
+        data = np.stack([data, data], axis=1)
+
     sd.play(data, samplerate, device=output_dev)
     sd.wait()  # Wait until audio is finished
