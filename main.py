@@ -63,6 +63,7 @@ class MessageStatus(str, Enum):
 class MessageType(str, Enum):
     SERVER_NOTIFICATION = "server_notification"
     HOTWORD = "hotword"
+    SILENCE = "silence"
     TRANSCRIBED = "transcribed"
 
 
@@ -165,6 +166,11 @@ async def websocket_listen(websocket: WebSocket):
                     send_message(websocket, MessageStatus.OK, MessageType.HOTWORD, text),
                     loop)
 
+            def on_silence(text):
+                asyncio.run_coroutine_threadsafe(
+                    send_message(websocket, MessageStatus.OK, MessageType.SILENCE, text),
+                    loop)
+
             def on_transcription(text):
                 asyncio.run_coroutine_threadsafe(
                     send_message(websocket, MessageStatus.OK, MessageType.TRANSCRIBED, text),
@@ -175,6 +181,7 @@ async def websocket_listen(websocket: WebSocket):
                 hw_obj.detect_hotword_and_transcribe,
                 params.hotwords,
                 on_hotword,
+                on_silence,
                 on_transcription,
                 params.target_latency,
                 params.silence_duration,

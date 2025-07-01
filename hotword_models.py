@@ -153,6 +153,7 @@ class HotwordModel():
         self,
         hotword_list,
         on_hotword_callback=None,
+        on_silence_callback=None,
         on_transcription_callback=None,
         target_latency_ms=100,
         silence_duration_s=3,
@@ -211,6 +212,8 @@ class HotwordModel():
 
                 if silence_audio:
                     utility.play_wav(silence_audio)
+                    if on_silence_callback:
+                        on_silence_callback("Silence detected")
 
                 if audio_frames:
                     status, output = self.__recording_done_callback(audio_frames)

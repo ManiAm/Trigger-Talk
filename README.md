@@ -99,13 +99,13 @@ Open a PowerShell (as Administrator) on Windows. List available USB devices:
 
 Bind the device on Windows:
 
-    usbipd bind --busid 1-2
+    usbipd bind --busid 6-1
 
-Replace `1-2` with the correct BUSID of your audio device.
+Replace `6-1` with the correct BUSID of your audio device.
 
 Attach the USB device to WSL:
 
-    usbipd attach --wsl --busid 1-2
+    usbipd attach --wsl --busid 6-1
 
 Here is a sample output:
 
@@ -117,3 +117,7 @@ Here is a sample output:
 Verify the device inside WSL:
 
     lsusb
+
+Once you are done, detach the device:
+
+    usbipd detach --busid 6-1
