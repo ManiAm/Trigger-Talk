@@ -207,13 +207,12 @@ class HotwordModel():
 
                     print("Recording started...")
                     while stream.active:
-                        sd.sleep(100)
+                        sd.sleep(20)
 
                 if silence_audio:
                     utility.play_wav(silence_audio)
 
                 if audio_frames:
-
                     status, output = self.__recording_done_callback(audio_frames)
                     if not status:
                         return False, output

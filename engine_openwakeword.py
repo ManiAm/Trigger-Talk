@@ -77,6 +77,7 @@ class OpenwakewordEngine:
         blocksize = utility.choose_blocksize(target_latency_ms, sample_rate)
 
         self.__empty_queue()
+        detected_hotword = None
 
         with sd.RawInputStream(
             device=self.dev_index,
@@ -111,13 +112,14 @@ class OpenwakewordEngine:
                     name, score = filtered[0]
                     print(f"🔊 Hotword detected: {name} (score: {score:.2f})")
 
-                    if on_hotword_callback:
-                        on_hotword_callback(name)
+                    detected_hotword = name
+                    break
 
-                    if hotword_audio:
-                        utility.play_wav(hotword_audio)
-
-                    return True, None
+        if detected_hotword:
+            if hotword_audio:
+                utility.play_wav(hotword_audio)
+            if on_hotword_callback:
+                on_hotword_callback(detected_hotword)
 
         return True, None
 

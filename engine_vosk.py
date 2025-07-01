@@ -2,6 +2,7 @@
 import sys
 import json
 import queue
+import threading
 import gc
 import sounddevice as sd
 from vosk import Model, KaldiRecognizer
@@ -48,6 +49,7 @@ class VoskEngine:
         blocksize = utility.choose_blocksize(target_latency_ms, self.dev_sample_rate)
 
         self.__empty_queue()
+        detected_hotword = None
 
         with sd.RawInputStream(
             device=self.dev_index,
@@ -72,23 +74,24 @@ class VoskEngine:
                     print(f"[VOICE] {text}")
 
                     for word in hotword_list:
-
                         if word in text:
-
                             print(f"🔊 Hotword detected: {word}")
+                            detected_hotword = word
+                            break
 
-                            if on_hotword_callback:
-                                on_hotword_callback(word)
-
-                            if hotword_audio:
-                                utility.play_wav(hotword_audio)
-
-                            return True, None
+                    if detected_hotword:
+                        break  # break while loop
 
                 else:
                     # partial results:
                     # partial = json.loads(recognizer.PartialResult())["partial"]
                     pass
+
+        if detected_hotword:
+            if hotword_audio:
+                utility.play_wav(hotword_audio)
+            if on_hotword_callback:
+                on_hotword_callback(detected_hotword)
 
         return True, None
 

@@ -77,6 +77,7 @@ class PvporcupineEngine:
 
         frame_length = self.pvporcupine_model.frame_length
         sample_rate = self.pvporcupine_model.sample_rate
+        detected_hotword = None
 
         with sd.RawInputStream(
             device=self.dev_index,
@@ -95,16 +96,14 @@ class PvporcupineEngine:
                 keyword_index = self.pvporcupine_model.process(audio_frame)
 
                 if keyword_index >= 0:
+                    detected_hotword = hotword_list[keyword_index]
+                    break
 
-                    detected_word = hotword_list[keyword_index]
-
-                    if on_hotword_callback:
-                        on_hotword_callback(detected_word)
-
-                    if hotword_audio:
-                        utility.play_wav(hotword_audio)
-
-                    return True, None
+        if detected_hotword:
+            if hotword_audio:
+                utility.play_wav(hotword_audio)
+            if on_hotword_callback:
+                on_hotword_callback(detected_hotword)
 
         return True, None
 
