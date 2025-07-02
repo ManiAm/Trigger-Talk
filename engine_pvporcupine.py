@@ -55,7 +55,7 @@ class PvporcupineEngine:
         return True, None
 
 
-    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, hotword_audio, on_hotword_callback=None):
+    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, on_hotword_callback=None):
 
         _ = target_latency_ms
 
@@ -100,8 +100,6 @@ class PvporcupineEngine:
                     break
 
         if detected_hotword:
-            if hotword_audio:
-                utility.play_wav(hotword_audio)
             if on_hotword_callback:
                 on_hotword_callback(detected_hotword)
 

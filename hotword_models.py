@@ -44,10 +44,6 @@ class HotwordModel():
         self.vad = webrtcvad.Vad(3)
         self.target_rate = 16000
 
-        script_path = os.path.abspath(__file__)
-        script_dir = os.path.dirname(script_path)
-        self.sound_dir = os.path.join(script_dir, "sounds")
-
 
     def init_audio_device(
         self,
@@ -165,22 +161,10 @@ class HotwordModel():
         on_silence_callback=None,
         on_transcription_callback=None,
         target_latency_ms=100,
-        silence_duration_s=3,
-        hotword_audio=None,
-        silence_audio=None):
+        silence_duration_s=3):
 
         if self.input_dev_index is None or self.model_handler is None:
             return False, "hotword detection is not initialized!"
-
-        if hotword_audio:
-            hotword_audio = os.path.join(self.sound_dir, hotword_audio)
-            if not os.path.exists(hotword_audio):
-                return False, f"hotword_audio '{hotword_audio}' does not exist"
-
-        if silence_audio:
-            silence_audio = os.path.join(self.sound_dir, silence_audio)
-            if not os.path.exists(silence_audio):
-                return False, f"silence_audio '{silence_audio}' does not exist"
 
         hotword_list = [x.lower() for x in hotword_list]
 
@@ -193,7 +177,6 @@ class HotwordModel():
                 hotword_list,
                 target_latency_ms,
                 self.script_state,
-                hotword_audio,
                 on_hotword_callback)
 
             if not status:
@@ -219,10 +202,8 @@ class HotwordModel():
                     while stream.active:
                         sd.sleep(20)
 
-                if silence_audio:
-                    utility.play_wav(silence_audio)
-                    if on_silence_callback:
-                        on_silence_callback("Silence detected")
+                if on_silence_callback:
+                    on_silence_callback("Silence detected")
 
                 if audio_frames:
                     status, output = self.__recording_done_callback(audio_frames)

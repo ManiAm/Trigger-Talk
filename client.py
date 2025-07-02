@@ -19,9 +19,7 @@ async def main():
             "model_engine_stt": "openai_whisper",
             "model_name_stt": "small.en",
             "target_latency": 100,
-            "silence_duration": 2,
-            "hotword_audio": "bell_1.wav",
-            "silence_audio": "bell_1.wav"
+            "silence_duration": 2
         }
 
         # example for Pvporcupine (commercial)
@@ -33,9 +31,7 @@ async def main():
             "model_engine_stt": "openai_whisper",
             "model_name_stt": "small.en",
             "target_latency": 100,
-            "silence_duration": 2,
-            "hotword_audio": "bell_1.wav",
-            "silence_audio": "bell_1.wav"
+            "silence_duration": 2
         }
 
         # example for Openwakeword (accurate and free)
@@ -47,9 +43,7 @@ async def main():
             "model_engine_stt": "openai_whisper",
             "model_name_stt": "small.en",
             "target_latency": 80,
-            "silence_duration": 2,
-            "hotword_audio": "jarvis/at_your_service.wav",
-            "silence_audio": "bell_1.wav"
+            "silence_duration": 2
         }
 
         print("Setting up hotword detection. Please wait...", flush=True)

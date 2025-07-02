@@ -44,7 +44,7 @@ class VoskEngine:
         return True, None
 
 
-    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, hotword_audio, on_hotword_callback=None):
+    def start_hotword_detection(self, hotword_list, target_latency_ms, script_state, on_hotword_callback=None):
 
         blocksize = utility.choose_blocksize(target_latency_ms, self.dev_sample_rate)
 
@@ -88,8 +88,6 @@ class VoskEngine:
                     pass
 
         if detected_hotword:
-            if hotword_audio:
-                utility.play_wav(hotword_audio)
             if on_hotword_callback:
                 on_hotword_callback(detected_hotword)
 

@@ -54,8 +54,6 @@ class ListenParams(BaseModel):
     model_name_stt: Optional[str]
     target_latency: Optional[int] = 100
     silence_duration: Optional[int] = 3
-    hotword_audio: Optional[str]
-    silence_audio: Optional[str]
 
 
 async def send_message(websocket, msg_status, msg_type, msg):
@@ -229,9 +227,7 @@ async def websocket_listen(websocket: WebSocket):
                 on_silence,
                 on_transcription,
                 params.target_latency,
-                params.silence_duration,
-                params.hotword_audio,
-                params.silence_audio)
+                params.silence_duration)
 
             while not future.done():
 
