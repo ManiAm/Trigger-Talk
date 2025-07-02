@@ -127,16 +127,26 @@ def print_audio_devices_group(title, group):
             print(f"            Latency (out): low={dev['lat_out_low']:.3f}s  high={dev['lat_out_high']:.3f}s\n")
 
 
-def select_best_microphone(mic_devices, preferred_hostapis=("Windows WASAPI", "Windows DirectSound")):
+def select_best_microphone(mic_devices, input_output, preferred_hostapis=("Windows WASAPI", "Windows DirectSound")):
 
-    if not mic_devices:
+    if not mic_devices and not input_output:
         return None
 
-    # Flatten mic_devices dict into one list
     candidates = []
+
+    # Flatten mic_devices dict into one list
     for _, devices in mic_devices.items():
         for dev in devices:
-            candidates.append(dev)
+            in_ch = dev["in_ch"]
+            if in_ch > 0:
+                candidates.append(dev)
+
+    # Flatten input_output dict into one list
+    for _, devices in input_output.items():
+        for dev in devices:
+            in_ch = dev["in_ch"]
+            if in_ch > 0:
+                candidates.append(dev)
 
     # Prioritize preferred hostapis
     preferred = [d for d in candidates if d["hostapi_name"] in preferred_hostapis]

@@ -87,9 +87,9 @@ class HotwordModel():
 
         if not dev_index:
 
-            mic_only, _, _ = utility.get_audio_devices()
+            mic_only, _, input_output = utility.get_audio_devices()
 
-            dev_index = utility.select_best_microphone(mic_only)
+            dev_index = utility.select_best_microphone(mic_only, input_output)
             if dev_index is None:
                 return False, "__init_input_device: No suitable input device found."
 
