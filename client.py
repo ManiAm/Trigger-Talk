@@ -59,7 +59,7 @@ async def main():
 
             try:
                 msg = await websocket.recv()
-                print("SERVER:", msg, flush=True)
+                print(f"\nSERVER: {msg}", flush=True)
             except websockets.exceptions.ConnectionClosed:
                 print("Connection closed by server.", flush=True)
                 break

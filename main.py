@@ -3,10 +3,12 @@ import json
 import threading
 import asyncio
 import logging
+import socket
+import getpass
+import platform
 import uvicorn
 from pydantic import BaseModel
 from typing import Optional, List
-from enum import Enum
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
@@ -14,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import APIRouter
 
 from hotword_models import HotwordModel
+from hotword_types import MessageStatus, MessageType
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
@@ -53,20 +56,6 @@ class ListenParams(BaseModel):
     silence_duration: Optional[int] = 3
     hotword_audio: Optional[str]
     silence_audio: Optional[str]
-
-
-class MessageStatus(str, Enum):
-    OK = "ok"
-    ERROR = "error"
-
-
-class MessageType(str, Enum):
-    NOTIFICATION = "notification"
-    DEV_INPUT = "dev_input"
-    DEV_OUTPUT = "dev_output"
-    HOTWORD = "hotword"
-    SILENCE = "silence"
-    TRANSCRIBED = "transcribed"
 
 
 async def send_message(websocket, msg_status, msg_type, msg):
@@ -121,6 +110,25 @@ async def websocket_listen(websocket: WebSocket):
             params = ListenParams(**json.loads(params_raw))
             print(f"Received parameters from client: {params.model_dump()}")
 
+            loop = asyncio.get_event_loop()
+
+            #######
+
+            host_info = {
+                "hostname": socket.gethostname(),
+                "username": getpass.getuser(),
+                "platform": platform.system(),
+                "platform_version": platform.version(),
+                "architecture": platform.machine()
+            }
+
+            host_info_str = json.dumps(host_info)
+            asyncio.run_coroutine_threadsafe(
+                send_message(websocket, MessageStatus.OK, MessageType.HOST_INFO, host_info_str),
+                loop)
+
+            #######
+
             def dev_input_callback(dev_info):
                 dev_info_str = json.dumps(dev_info)
                 asyncio.run_coroutine_threadsafe(
@@ -133,14 +141,35 @@ async def websocket_listen(websocket: WebSocket):
                     send_message(websocket, MessageStatus.OK, MessageType.DEV_OUTPUT, dev_info_str),
                     loop)
 
-            loop = asyncio.get_event_loop()
+            status, output = await loop.run_in_executor(
+                None,
+                lambda: hw_obj.init_audio_device(
+                    dev_index=params.dev_index,
+                    dev_input_callback=dev_input_callback,
+                    dev_output_callback=dev_output_callback
+                )
+            )
+
+            if not status:
+                await send_message(
+                    websocket,
+                    MessageStatus.ERROR,
+                    MessageType.NOTIFICATION,
+                    f"init_audio_device failed: {output}")
+                await safe_close(websocket)
+                return
+
+            await send_message(
+                websocket,
+                MessageStatus.OK,
+                MessageType.NOTIFICATION,
+                "Audio device initialized.")
+
+            #######
 
             status, output = await loop.run_in_executor(
                 None,
                 lambda: hw_obj.init_hotword(
-                    dev_index=params.dev_index,
-                    dev_input_callback=dev_input_callback,
-                    dev_output_callback=dev_output_callback,
                     model_engine_hotword=params.model_engine_hotword,
                     model_name_hotword=params.model_name_hotword,
                     model_engine_stt=params.model_engine_stt,

@@ -49,32 +49,11 @@ class HotwordModel():
         self.sound_dir = os.path.join(script_dir, "sounds")
 
 
-    def init_hotword(
+    def init_audio_device(
         self,
         dev_index=None,
         dev_input_callback=None,
-        dev_output_callback=None,
-        model_engine_hotword="vosq",
-        model_name_hotword="vosk-model-en-us-0.22",
-        model_engine_stt="openai_whisper",
-        model_name_stt="small.en"):
-
-        status, output = self.__init_audio_device(dev_index, dev_input_callback, dev_output_callback)
-        if not status:
-            return False, output
-
-        status, output = self.__init_engine_hotword(model_engine_hotword, model_name_hotword)
-        if not status:
-            return False, output
-
-        status, output = self.__init_engine_stt(model_engine_stt, model_name_stt)
-        if not status:
-            return False, output
-
-        return True, None
-
-
-    def __init_audio_device(self, dev_index, dev_input_callback, dev_output_callback):
+        dev_output_callback=None):
 
         dev_info_default = utility.get_default_input_device()
 
@@ -114,6 +93,24 @@ class HotwordModel():
                 dev_info = utility.get_device_info(dev_index)
                 if dev_info:
                     dev_output_callback(dev_info)
+
+        return True, None
+
+
+    def init_hotword(
+        self,
+        model_engine_hotword="vosq",
+        model_name_hotword="vosk-model-en-us-0.22",
+        model_engine_stt="openai_whisper",
+        model_name_stt="small.en"):
+
+        status, output = self.__init_engine_hotword(model_engine_hotword, model_name_hotword)
+        if not status:
+            return False, output
+
+        status, output = self.__init_engine_stt(model_engine_stt, model_name_stt)
+        if not status:
+            return False, output
 
         return True, None
 
