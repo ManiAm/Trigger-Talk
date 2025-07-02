@@ -61,7 +61,9 @@ class MessageStatus(str, Enum):
 
 
 class MessageType(str, Enum):
-    SERVER_NOTIFICATION = "server_notification"
+    NOTIFICATION = "notification"
+    DEV_INPUT = "dev_input"
+    DEV_OUTPUT = "dev_output"
     HOTWORD = "hotword"
     SILENCE = "silence"
     TRANSCRIBED = "transcribed"
@@ -105,7 +107,7 @@ async def websocket_listen(websocket: WebSocket):
         await send_message(
             websocket,
             MessageStatus.ERROR,
-            MessageType.SERVER_NOTIFICATION,
+            MessageType.NOTIFICATION,
             "Another session is already running.")
 
         await safe_close(websocket)
@@ -119,12 +121,26 @@ async def websocket_listen(websocket: WebSocket):
             params = ListenParams(**json.loads(params_raw))
             print(f"Received parameters from client: {params.model_dump()}")
 
+            def dev_input_callback(dev_info):
+                dev_info_str = json.dumps(dev_info)
+                asyncio.run_coroutine_threadsafe(
+                    send_message(websocket, MessageStatus.OK, MessageType.DEV_INPUT, dev_info_str),
+                    loop)
+
+            def dev_output_callback(dev_info):
+                dev_info_str = json.dumps(dev_info)
+                asyncio.run_coroutine_threadsafe(
+                    send_message(websocket, MessageStatus.OK, MessageType.DEV_OUTPUT, dev_info_str),
+                    loop)
+
             loop = asyncio.get_event_loop()
 
             status, output = await loop.run_in_executor(
                 None,
                 lambda: hw_obj.init_hotword(
                     dev_index=params.dev_index,
+                    dev_input_callback=dev_input_callback,
+                    dev_output_callback=dev_output_callback,
                     model_engine_hotword=params.model_engine_hotword,
                     model_name_hotword=params.model_name_hotword,
                     model_engine_stt=params.model_engine_stt,
@@ -136,7 +152,7 @@ async def websocket_listen(websocket: WebSocket):
                 await send_message(
                     websocket,
                     MessageStatus.ERROR,
-                    MessageType.SERVER_NOTIFICATION,
+                    MessageType.NOTIFICATION,
                     f"init_hotword failed: {output}")
                 await safe_close(websocket)
                 return
@@ -144,14 +160,14 @@ async def websocket_listen(websocket: WebSocket):
             await send_message(
                 websocket,
                 MessageStatus.OK,
-                MessageType.SERVER_NOTIFICATION,
+                MessageType.NOTIFICATION,
                 "Hotword detection initialized. Listening...")
 
         except Exception as e:
             await send_message(
                 websocket,
                 MessageStatus.ERROR,
-                MessageType.SERVER_NOTIFICATION,
+                MessageType.NOTIFICATION,
                 str(e))
             await safe_close(websocket)
             hw_obj.stop_hotword_detection()
@@ -205,14 +221,14 @@ async def websocket_listen(websocket: WebSocket):
                     await send_message(
                         websocket,
                         MessageStatus.ERROR,
-                        MessageType.SERVER_NOTIFICATION,
+                        MessageType.NOTIFICATION,
                         output)
 
         except Exception as e:
             await send_message(
                 websocket,
                 MessageStatus.ERROR,
-                MessageType.SERVER_NOTIFICATION,
+                MessageType.NOTIFICATION,
                 str(e))
 
         finally:

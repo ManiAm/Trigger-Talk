@@ -52,12 +52,14 @@ class HotwordModel():
     def init_hotword(
         self,
         dev_index=None,
+        dev_input_callback=None,
+        dev_output_callback=None,
         model_engine_hotword="vosq",
         model_name_hotword="vosk-model-en-us-0.22",
         model_engine_stt="openai_whisper",
         model_name_stt="small.en"):
 
-        status, output = self.__init_input_device(dev_index)
+        status, output = self.__init_audio_device(dev_index, dev_input_callback, dev_output_callback)
         if not status:
             return False, output
 
@@ -72,7 +74,7 @@ class HotwordModel():
         return True, None
 
 
-    def __init_input_device(self, dev_index):
+    def __init_audio_device(self, dev_index, dev_input_callback, dev_output_callback):
 
         dev_info_default = utility.get_default_input_device()
 
@@ -99,9 +101,19 @@ class HotwordModel():
 
         print(f'\nUsing input device: [{dev_info["index"]}] {dev_info["name"]} (hostapi: {dev_info["hostapi_name"]})')
 
+        if dev_input_callback:
+            dev_input_callback(dev_info)
+
         self.input_dev_index = dev_index
         self.input_dev_sample_rate = int(dev_info["rate"])
         self.input_dev_channels = dev_info["in_ch"]
+
+        if dev_output_callback:
+            output_dev = sd.default.device[1]
+            if output_dev is not None and output_dev >= 0:
+                dev_info = utility.get_device_info(dev_index)
+                if dev_info:
+                    dev_output_callback(dev_info)
 
         return True, None
 
