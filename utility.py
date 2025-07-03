@@ -1,6 +1,5 @@
 
 import sounddevice as sd
-import soundfile as sf
 from collections import defaultdict
 from scipy.signal import resample
 import numpy as np
@@ -204,25 +203,3 @@ def resample_audio(audio_frames, input_rate=44100, target_rate=16000):
 
     num_samples = int(len(audio_frames) * target_rate / input_rate)
     return resample(audio_frames, num_samples).astype(np.int16)
-
-
-def play_wav(filename):
-
-    output_dev = sd.default.device[1]
-    if output_dev is None or output_dev < 0:
-        print("Error: invalid output device index")
-        return
-
-    data, samplerate = sf.read(filename, dtype='float32')
-
-    # Normalize and limit volume
-    peak = np.max(np.abs(data))
-    if peak > 0:
-        data = data / peak * 0.8  # cap at 80% volume to avoid clipping
-
-    # Upmix mono to stereo
-    if data.ndim == 1:
-        data = np.stack([data, data], axis=1)
-
-    sd.play(data, samplerate, device=output_dev)
-    sd.wait()  # Wait until audio is finished

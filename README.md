@@ -87,9 +87,9 @@ This project also supports Picovoice [Porcupine](https://github.com/Picovoice/po
 
 In addition to these, you can train your own custom wakeword using the [Picovoice Console](https://console.picovoice.ai/), targeting specific platforms (e.g., Linux, macOS, Windows, Android, iOS, Raspberry Pi). The result is a `.ppn` model file which you can include in the project and reference by filename. Check [this](https://youtu.be/T6jxYRSyF2w) short tutorial for more details.
 
-## Accessing Microphone and Speaker in WSL
+## Accessing Audio Devices in WSL
 
-If your application requires direct access to USB audio devices (e.g., microphone or speaker) inside Windows Subsystem for Linux (WSL2), you can use [usbipd-win](https://github.com/dorssel/usbipd-win) to attach USB devices from Windows to your WSL instance.
+If your application requires direct access to USB audio devices (e.g., microphone) inside Windows Subsystem for Linux (WSL2), you can use [usbipd-win](https://github.com/dorssel/usbipd-win) to attach them from Windows to your WSL instance.
 
 Open a PowerShell (as Administrator) on Windows. List available USB devices:
 
@@ -116,6 +116,6 @@ Verify the device inside WSL:
 
     lsusb
 
-Once you are done, detach the device:
+Once you are done, you can detach the device:
 
     usbipd detach --busid 6-1

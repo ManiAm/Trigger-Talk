@@ -48,8 +48,7 @@ class HotwordModel():
     def init_audio_device(
         self,
         dev_index=None,
-        dev_input_callback=None,
-        dev_output_callback=None):
+        dev_input_callback=None):
 
         dev_info_default = utility.get_default_input_device()
 
@@ -82,13 +81,6 @@ class HotwordModel():
         self.input_dev_index = dev_index
         self.input_dev_sample_rate = int(dev_info["rate"])
         self.input_dev_channels = dev_info["in_ch"]
-
-        if dev_output_callback:
-            output_dev = sd.default.device[1]
-            if output_dev is not None and output_dev >= 0:
-                dev_info = utility.get_device_info(dev_index)
-                if dev_info:
-                    dev_output_callback(dev_info)
 
         return True, None
 

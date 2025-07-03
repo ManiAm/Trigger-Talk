@@ -133,18 +133,11 @@ async def websocket_listen(websocket: WebSocket):
                     send_message(websocket, MessageStatus.OK, MessageType.DEV_INPUT, dev_info_str),
                     loop)
 
-            def dev_output_callback(dev_info):
-                dev_info_str = json.dumps(dev_info)
-                asyncio.run_coroutine_threadsafe(
-                    send_message(websocket, MessageStatus.OK, MessageType.DEV_OUTPUT, dev_info_str),
-                    loop)
-
             status, output = await loop.run_in_executor(
                 None,
                 lambda: hw_obj.init_audio_device(
                     dev_index=params.dev_index,
-                    dev_input_callback=dev_input_callback,
-                    dev_output_callback=dev_output_callback
+                    dev_input_callback=dev_input_callback
                 )
             )
 
